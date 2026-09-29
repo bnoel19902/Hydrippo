@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -72,6 +73,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Health Connect: Hydrippo only writes water. It never reads health data. -->
     <uses-permission android:name="android.permission.health.WRITE_HYDRATION" />
+    <!-- The notifications plugin asks for exact alarms; reminders don't need them, and Play
+         questions apps that request them without being an alarm or calendar app. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
 
     <!-- Lets Hydrippo see whether the Health Connect app is installed (Android 13 and older). -->
     <queries>

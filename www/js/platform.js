@@ -111,7 +111,10 @@
       if (!plan.length) return { ok: true };
       await P.LocalNotifications.schedule({
         notifications: plan.map(function (r, i) {
-          return { id: 1000 + i, title: r.title, body: r.body, schedule: { at: new Date(r.at), allowWhileIdle: true }, channelId: 'reminders', actionTypeId: 'LOG_WATER', smallIcon: 'ic_stat_hydrippo', iconColor: '#1A7EA2' };
+          // isExactNotification: false is essential. The plugin's default (true) opens Android's
+          // "Alarms & reminders" settings screen on every schedule() call on Android 12+, and a
+          // water reminder doesn't need to land on the exact minute anyway.
+          return { id: 1000 + i, title: r.title, body: r.body, schedule: { at: new Date(r.at), allowWhileIdle: true }, isExactNotification: false, channelId: 'reminders', actionTypeId: 'LOG_WATER', smallIcon: 'ic_stat_hydrippo', iconColor: '#1A7EA2' };
         })
       });
       return { ok: true };

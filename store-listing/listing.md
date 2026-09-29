@@ -27,10 +27,14 @@ WHAT'S FREE, FOREVER
 • Edit any drink, or add one you forgot, even yesterday's
 • Quick buttons you set to the drinks and sizes you actually have
 • A daily goal based on your weight, activity and heat, plus a one-tap boost for hot or heavy days
+• Automatic hot-day boost: enter your ZIP code and your goal goes up when the forecast hits 85°F (US only, no GPS)
+• A home-screen widget: see today at a glance and log a drink with one tap
+• Health Connect sync (optional): your drinks are saved to Health Connect, where other health apps you allow can use them
 • The shift-friendly day
 • Reminders inside your awake hours that wait after you drink and stop once you hit your goal
 • Help for phones that put reminders to sleep
 • Your full history and streaks, never locked
+• Share your streak as a picture, and earn Drip's crown with a 30-day streak
 • Backup and restore for a new phone
 • No ads. No pop-up upgrade screens. No diet talk. No account.
 
@@ -40,7 +44,7 @@ HYDRIPPO PLUS
 • Shift schedules: different awake hours on different days
 • Insights: best weekday, usual first and last drink, this week vs last
 • 30-day chart and CSV export
-• Dress up Drip with a cap, a lily or shades
+• Dress up Drip: cap, lily, shades, hard hat, headphones, beanie and sweatband
 
 Plus is $9.99 a year with a 7-day free trial, or $14.99 once for lifetime access.
 
@@ -62,4 +66,4 @@ Made by SideQuest Studio. We don't show ads, and we never will.
 ## Contact details (required)
 
 - Email: set up a studio address (for example support@ your SideQuest domain). Don't use a personal inbox.
-- Privacy policy URL: host privacy-policy.md as a public web page (see GUS_HANDOFF.md, step 9).
+- Privacy policy URL: the public copy of www/privacy.html (see the launch runbook). The same page is inside the app under Settings > About.

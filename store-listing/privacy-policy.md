@@ -1,6 +1,6 @@
 # Hydrippo Privacy Policy
 
-_Last updated: [DATE OF FIRST RELEASE]_
+_Last updated: September 28, 2026_
 
 Hydrippo is a water tracking app made by SideQuest Studio ("we"). This policy explains what happens to your information when you use Hydrippo on Android.
 

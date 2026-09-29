@@ -62,3 +62,9 @@ test('every string and drawable the widget code uses exists', () => {
     for (const [, id] of kt.matchAll(/R\.id\.(w_\w+)/g)) assert.ok(xml.includes('@+id/' + id), layout + ' is missing view ' + id);
   }
 });
+
+test('reminders are scheduled as inexact alarms', () => {
+  // Without this the notifications plugin opens the "Alarms & reminders" screen on every schedule().
+  assert.match(read('www/js/platform.js'), /isExactNotification: false/);
+  assert.match(read('android/app/src/main/AndroidManifest.xml'), /SCHEDULE_EXACT_ALARM" tools:node="remove"/);
+});
