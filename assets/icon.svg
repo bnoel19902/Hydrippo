@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Hydrippo app icon: Drip the hippo soaking, eyes and ears above the water. Original artwork. -->
+  <rect width="512" height="512" fill="#D3EAEE"/>
+  <g transform="translate(256 318) scale(3.6) translate(-80 -60)">
+    <ellipse fill="#9486AD" cx="80" cy="114" rx="56" ry="30"/>
+    <ellipse fill="#9486AD" cx="80" cy="54" rx="27" ry="19"/>
+    <ellipse fill="#9486AD" cx="57" cy="35" rx="6" ry="8.5" transform="rotate(-24 57 35)"/>
+    <ellipse fill="#9486AD" cx="103" cy="35" rx="6" ry="8.5" transform="rotate(24 103 35)"/>
+    <ellipse fill="#F2A1B5" opacity="0.8" cx="57" cy="36" rx="2.6" ry="4.4" transform="rotate(-24 57 36)"/>
+    <ellipse fill="#F2A1B5" opacity="0.8" cx="103" cy="36" rx="2.6" ry="4.4" transform="rotate(24 103 36)"/>
+    <circle fill="#9486AD" cx="68" cy="45" r="9.5"/>
+    <circle fill="#9486AD" cx="92" cy="45" r="9.5"/>
+    <ellipse fill="#9486AD" cx="80" cy="76" rx="37" ry="25"/>
+    <circle fill="#fff" cx="68" cy="46" r="5.6"/>
+    <circle fill="#fff" cx="92" cy="46" r="5.6"/>
+    <circle fill="#2A2338" cx="69" cy="47" r="3.1"/>
+    <circle fill="#2A2338" cx="93" cy="47" r="3.1"/>
+    <circle fill="#fff" cx="70" cy="45.6" r="1"/>
+    <circle fill="#fff" cx="94" cy="45.6" r="1"/>
+    <ellipse fill="#5B4E72" cx="70" cy="61" rx="3.4" ry="2.4"/>
+    <ellipse fill="#5B4E72" cx="90" cy="61" rx="3.4" ry="2.4"/>
+    <path fill="#2BA6CD" d="M80 22 Q86 30 83 35 Q80 38 77 35 Q74 30 80 22 Z"/>
+    <path fill="#2BA6CD" opacity="0.92" d="M-80 67 Q-70 64 -60 67 T -40 67 T -20 67 T 0 67 T 20 67 T 40 67 T 60 67 T 80 67 T 100 67 T 120 67 T 140 67 T 160 67 T 180 67 T 200 67 T 220 67 T 240 67 L 240 200 L -80 200 Z"/>
+    <path fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.55" d="M40 74 Q50 71 60 74 M100 74 Q110 71 120 74"/>
+  </g>
+</svg>

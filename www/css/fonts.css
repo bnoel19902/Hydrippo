@@ -1,0 +1,22 @@
+/* Bundled fonts (SIL Open Font License, see fonts/*.txt). Works offline inside the Android app. */
+@font-face {
+  font-family: 'Sniglet';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/sniglet-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Sniglet';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../fonts/sniglet-latin-800-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2') format('woff2');
+}

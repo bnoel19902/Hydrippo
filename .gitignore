@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.log
+# Signing keys and secrets never go in the repo
+*.jks
+*.keystore
+keystore.properties
+android/app/google-services.json
+# Local simulator output
+tests/sim/*.png

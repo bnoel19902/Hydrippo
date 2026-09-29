@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hydrippo</string>
+    <string name="title_activity_main">Hydrippo</string>
+    <string name="package_name">com.sidequeststudio.hydrippo</string>
+    <string name="custom_url_scheme">com.sidequeststudio.hydrippo</string>
+</resources>
