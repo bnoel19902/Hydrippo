@@ -2,7 +2,8 @@
 #  - Every push to main: run the tests, then build a test APK and post it as the
 #    "Latest test build" release, so the phone download link never changes:
 #    https://github.com/bnoel19902/Hydrippo/releases/download/test-latest/hydrippo-test.apk
-#  - "Run workflow" with "release" checked: also builds the signed .aab for Google Play.
+#  - "Run workflow" with "release" checked: also builds the signed .aab for Google Play and
+#    attaches it to a draft release (Releases page; drafts are private to the repo's owners).
 #    Needs these repository secrets: HYDRIPPO_KEYSTORE_BASE64, HYDRIPPO_KEYSTORE_PASSWORD,
 #    HYDRIPPO_KEY_ALIAS, HYDRIPPO_KEY_PASSWORD.
 name: Android build
@@ -111,3 +112,13 @@ jobs:
           name: hydrippo-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 90
+      - name: Attach the bundle to a draft release (only people with access to the repo can see drafts)
+        if: github.event_name == 'workflow_dispatch' && inputs.release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          cp android/app/build/outputs/bundle/release/app-release.aab "$RUNNER_TEMP/hydrippo-$V-${{ github.run_number }}.aab"
+          gh release create "v$V-build${{ github.run_number }}" "$RUNNER_TEMP/hydrippo-$V-${{ github.run_number }}.aab" \
+            --draft --target "$GITHUB_SHA" --title "Hydrippo $V (build ${{ github.run_number }}) for Google Play" \
+            --notes "Signed bundle for Play Console. Version $V, version code ${{ github.run_number }}. Download the .aab and upload it in Play Console > Test and release."
