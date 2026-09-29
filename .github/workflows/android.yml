@@ -1,6 +1,7 @@
 # Builds Hydrippo for Android on GitHub's machines.
-#  - Every push to main: run the tests, then build a debug APK you can install on your phone
-#    (Actions tab > latest run > Artifacts > hydrippo-debug-apk).
+#  - Every push to main: run the tests, then build a test APK and post it as the
+#    "Latest test build" release, so the phone download link never changes:
+#    https://github.com/bnoel19902/Hydrippo/releases/download/test-latest/hydrippo-test.apk
 #  - "Run workflow" with "release" checked: also builds the signed .aab for Google Play.
 #    Needs these repository secrets: HYDRIPPO_KEYSTORE_BASE64, HYDRIPPO_KEYSTORE_PASSWORD,
 #    HYDRIPPO_KEY_ALIAS, HYDRIPPO_KEY_PASSWORD.
@@ -16,6 +17,9 @@ on:
         description: Also build the signed Google Play bundle (.aab)
         type: boolean
         default: false
+
+permissions:
+  contents: write   # to update the "Latest test build" release
 
 concurrency:
   group: android-${{ github.ref }}
@@ -54,14 +58,37 @@ jobs:
       - run: npm ci
       - name: Copy the web app into the Android project
         run: npx cap sync android
-      - name: Build debug APK
+      - name: Build test APK
         working-directory: android
-        run: ./gradlew --no-daemon assembleDebug -PversionCode=${{ github.run_number }}
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon assembleDebug -PversionCode=${{ github.run_number }} 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Report compiler warnings
+        if: always()
+        run: |
+          # One annotation each for warnings and (on failure) the end of the log, readable from the API.
+          enc() { sed -e 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}'; }
+          W=$(grep -E '^w: |warning:' "$RUNNER_TEMP/build.log" | grep -v 'Deprecated Gradle features' | head -40 | enc || true)
+          [ -n "$W" ] && echo "::warning title=Build warnings::$W" || true
+          if grep -q 'BUILD FAILED' "$RUNNER_TEMP/build.log"; then
+            E=$(grep -E '^e: |error:|What went wrong' -A3 "$RUNNER_TEMP/build.log" | head -60 | enc)
+            echo "::error title=Build failed::$E"
+          fi
       - uses: actions/upload-artifact@v6
         with:
-          name: hydrippo-debug-apk
+          name: hydrippo-test-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+      - name: Post the test APK as the "Latest test build" release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/hydrippo-test.apk"
+          gh release delete test-latest --yes --cleanup-tag 2>/dev/null || true
+          gh release create test-latest "$RUNNER_TEMP/hydrippo-test.apk" \
+            --prerelease --target "$GITHUB_SHA" --title "Latest test build (#${{ github.run_number }})" \
+            --notes "Test build from commit ${GITHUB_SHA::7}. Install on your phone to try it; it updates over the previous test build and keeps your data. Not for Google Play."
 
       - name: Build signed release bundle
         if: github.event_name == 'workflow_dispatch' && inputs.release

@@ -4,6 +4,8 @@ node_modules/
 # Signing keys and secrets never go in the repo
 *.jks
 *.keystore
+# ...except the shared debug key, so test builds install over each other (it signs nothing for Play)
+!android/app/debug.keystore
 keystore.properties
 android/app/google-services.json
 # Local simulator output
