@@ -1,0 +1,85 @@
+# Builds Hydrippo for Android on GitHub's machines.
+#  - Every push to main: run the tests, then build a debug APK you can install on your phone
+#    (Actions tab > latest run > Artifacts > hydrippo-debug-apk).
+#  - "Run workflow" with "release" checked: also builds the signed .aab for Google Play.
+#    Needs these repository secrets: HYDRIPPO_KEYSTORE_BASE64, HYDRIPPO_KEYSTORE_PASSWORD,
+#    HYDRIPPO_KEY_ALIAS, HYDRIPPO_KEY_PASSWORD.
+name: Android build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Also build the signed Google Play bundle (.aab)
+        type: boolean
+        default: false
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Unit and property tests (three time zones)
+        run: |
+          TZ=America/New_York npm test
+          TZ=Europe/London npm test
+          TZ=Australia/Sydney npm test
+
+  android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - run: npm ci
+      - name: Copy the web app into the Android project
+        run: npx cap sync android
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug -PversionCode=${{ github.run_number }}
+      - uses: actions/upload-artifact@v6
+        with:
+          name: hydrippo-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Build signed release bundle
+        if: github.event_name == 'workflow_dispatch' && inputs.release
+        working-directory: android
+        env:
+          HYDRIPPO_KEYSTORE_BASE64: ${{ secrets.HYDRIPPO_KEYSTORE_BASE64 }}
+          HYDRIPPO_KEYSTORE_PASSWORD: ${{ secrets.HYDRIPPO_KEYSTORE_PASSWORD }}
+          HYDRIPPO_KEY_ALIAS: ${{ secrets.HYDRIPPO_KEY_ALIAS }}
+          HYDRIPPO_KEY_PASSWORD: ${{ secrets.HYDRIPPO_KEY_PASSWORD }}
+        run: |
+          if [ -z "$HYDRIPPO_KEYSTORE_BASE64" ]; then echo "::error::Signing secrets are not set"; exit 1; fi
+          echo "$HYDRIPPO_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          export HYDRIPPO_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          ./gradlew --no-daemon bundleRelease -PversionCode=${{ github.run_number }}
+          rm -f "$RUNNER_TEMP/upload.jks"
+      - uses: actions/upload-artifact@v6
+        if: github.event_name == 'workflow_dispatch' && inputs.release
+        with:
+          name: hydrippo-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 90

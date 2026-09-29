@@ -473,6 +473,8 @@ input.zip { width: 104px; text-align: center; font-variant-numeric: tabular-nums
   display: flex; flex-direction: column; gap: 16px;
   animation: up 0.24s cubic-bezier(.2,.8,.2,1);
 }
+.sheet--tall { height: 88%; }
+.sheet--tall .policy { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
 .sheet-grab { width: 44px; height: 5px; border-radius: 999px; background: var(--line); margin: 0 auto; }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .sheet-head h2 { font-size: 22px; }

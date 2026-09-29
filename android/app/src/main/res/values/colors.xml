@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hydrippo palette (same as www/css/app.css, light theme) -->
+    <color name="hyd_bg">#E6F1F2</color>
+    <color name="hyd_surface">#F8FCFC</color>
+    <color name="hyd_ink">#15303A</color>
+    <color name="hyd_ink2">#4C6670</color>
+    <color name="hyd_track">#C3D8DB</color>
+    <color name="hyd_water">#2BA6CD</color>
+    <color name="hyd_btn_bg">#1A7EA2</color>
+    <color name="hyd_btn_ink">#FFFFFF</color>
+</resources>

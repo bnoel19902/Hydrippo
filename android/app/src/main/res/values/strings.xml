@@ -4,4 +4,22 @@
     <string name="title_activity_main">Hydrippo</string>
     <string name="package_name">com.sidequeststudio.hydrippo</string>
     <string name="custom_url_scheme">com.sidequeststudio.hydrippo</string>
+
+    <string name="privacy_title">Privacy policy</string>
+
+    <!-- Home-screen widget -->
+    <string name="widget_name">Hydrippo</string>
+    <string name="widget_description">Today\'s water at a glance, with a one-tap button to log a drink.</string>
+    <string name="widget_setup">Open the app to set your goal</string>
+    <string name="widget_open">Open</string>
+    <string name="widget_reached">Goal reached!</string>
+    <string name="widget_of_goal">of %1$s</string>
+    <string name="widget_add">+ %1$s</string>
+    <string name="widget_add_desc">Log %1$s of water</string>
+    <string name="widget_status_desc">Drip the hippo. %1$s of %2$s today.</string>
+    <string name="widget_drip_desc">Drip the hippo</string>
+    <!-- Sample values shown in the widget picker preview -->
+    <string name="widget_sample_total">48 oz</string>
+    <string name="widget_sample_goal">of 104 oz</string>
+    <string name="widget_sample_add">+ 8 oz</string>
 </resources>

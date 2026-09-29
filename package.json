@@ -1,14 +1,15 @@
 {
   "name": "hydrippo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Hydrippo water tracker by SideQuest Studio. Web app in www/, wrapped for Android with Capacitor.",
   "scripts": {
-    "test": "node --test tests/core.test.js tests/property.test.js",
+    "test": "node --test tests/core.test.js tests/property.test.js tests/meta.test.js",
     "android:add": "npx cap add android",
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android",
-    "android:assets": "npx capacitor-assets generate --android --iconBackgroundColor '#D3EAEE' --splashBackgroundColor '#E6F1F2' --splashBackgroundColorDark '#0D1A20'"
+    "android:assets": "npx capacitor-assets generate --android --iconBackgroundColor '#D3EAEE' --splashBackgroundColor '#E6F1F2' --splashBackgroundColorDark '#0D1A20'",
+    "privacy": "python3 tools/privacy_html.py"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

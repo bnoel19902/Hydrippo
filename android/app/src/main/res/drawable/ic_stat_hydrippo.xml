@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon for reminders (a water drop). Must stay single-color white. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,2.5c3.9,4.6 6.7,8.4 6.7,11.8a6.7,6.7 0,0 1,-13.4 0c0,-3.4 2.8,-7.2 6.7,-11.8Z" />
+</vector>

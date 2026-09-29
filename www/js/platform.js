@@ -235,7 +235,9 @@
    * Returns { periods JSON, forecastUrl } or null. Only a ZIP-level location is ever sent.
    */
   async function weatherForecast(lat, lng, forecastUrl) {
-    var headers = { 'Accept': 'application/geo+json', 'User-Agent': 'Hydrippo/0.3 (SideQuest Studio)' };
+    // Browsers and Android's WebView send their own User-Agent, which the weather service accepts.
+    // (Setting a custom one here would be dropped or would force an extra CORS round trip.)
+    var headers = { 'Accept': 'application/geo+json' };
     try {
       if (!forecastUrl) {
         var pr = await fetch('https://api.weather.gov/points/' + lat.toFixed(4) + ',' + lng.toFixed(4), { headers: headers });
@@ -273,6 +275,10 @@
   async function hcDelete(ids) {
     if (!H() || !ids.length) return true;
     try { await H().deleteHydration({ ids: ids }); return true; } catch (e) { return false; }
+  }
+  // Opens Google Play on Health Connect (to install or update it on Android 13 and older).
+  function hcInstall() {
+    if (H() && H().openInstall) { try { H().openInstall(); } catch (e) { /* ignore */ } }
   }
 
   // Localized store prices from Google Play (through RevenueCat), or null to use the defaults.
@@ -312,6 +318,7 @@
     scheduleReminders: scheduleReminders,
     onReminderAction: onReminderAction,
     onBackButton: onBackButton,
+    hcInstall: hcInstall,
     haptic: haptic,
     exportCsv: exportCsv,
     updateWidget: updateWidget,

@@ -11,6 +11,7 @@
   var FREE_DAYS = 7;
   // Testing tools and test-mode Plus only show in the browser prototype or when HYD_DEBUG is set.
   var DEBUG = !P.isNative || !!window.HYD_DEBUG;
+  var APP_VERSION = '0.3.0'; // keep in step with package.json (a test checks)
 
   /* ---------------- Icons (original, 24px stroke) ---------------- */
   function ic(path, cls) {
@@ -153,13 +154,26 @@
     toast('Undone');
   }
 
+  // The one-tap amount used by the widget and the reminder's "Log" button.
+  function quickAddMl() { return state.units === 'ml' ? 250 : q(C.ozToMl(8)); }
+
+  // Send today's numbers to the home-screen widget (Android). The widget keeps counting on its
+  // own after the day ends, so it also gets the day's boundaries and the goal without any boost.
+  function pushWidget() {
+    if (!state || !state.onboarded) return;
+    var key = todayKey(), r = C.dayRange(key, state.dayEndMin);
+    P.updateWidget({
+      v: 1, totalMl: q(todayTotal()), goalMl: todayGoal(), baseGoalMl: state.goalMl, units: state.units,
+      dayEndMin: state.dayEndMin, dayStart: r.start, dayEnd: r.end, addMl: quickAddMl()
+    });
+  }
+
   var planTimer = null;
   function commit() {
     if (undoArmed) undoArmed = false;
     else if (undoSnap) { undoSnap = null; var tb = $('#toast button'); if (tb) hideToast(); }
     S.save(state);
-    var tot = todayTotal();
-    P.updateWidget({ totalMl: tot, goalMl: todayGoal(), units: state.units, dayEndMin: state.dayEndMin, label: fmt(tot) + ' of ' + fmt(todayGoal()) });
+    pushWidget();
     clearTimeout(planTimer);
     planTimer = setTimeout(planReminders, 1500);
     clearTimeout(hcTimer);
@@ -278,14 +292,17 @@
   /* ---------------- Toast ---------------- */
   var toastTimer = null;
   function hideToast() { $('#toast').hidden = true; }
+  // opts.undo adds an Undo button; opts.action = { label, run } adds any other button.
   function toast(msg, opts) {
     var t = $('#toast');
-    t.innerHTML = '<span></span>' + (opts && opts.undo ? '<button type="button">Undo</button>' : '');
+    var act = opts && opts.action;
+    t.innerHTML = '<span></span>' + (opts && opts.undo ? '<button type="button">Undo</button>' : act ? '<button type="button"></button>' : '');
     t.firstChild.textContent = msg;
     if (opts && opts.undo) t.querySelector('button').onclick = function () { hideToast(); undo(); };
+    else if (act) { var b = t.querySelector('button'); b.textContent = act.label; b.onclick = function () { hideToast(); act.run(); }; }
     t.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(hideToast, opts && opts.undo ? 6000 : 3200);
+    toastTimer = setTimeout(hideToast, opts && (opts.undo || act) ? 6000 : 3200);
   }
 
   /* ---------------- Logging ---------------- */
@@ -769,7 +786,7 @@
       '<section class="group"><h2>About</h2><div class="card rows"><div class="row col about">' +
         '<p class="fine"><b>Our promises:</b> no ads, no pop-up upgrade screens, no diet talk, and your history is never locked. Your data stays on this phone.</p>' +
         '<p class="fine">Hydrippo gives general hydration guidance. It is not a medical device and does not diagnose, treat, cure, or prevent any condition. If a doctor has given you a fluid limit or target, follow their advice.</p>' +
-        '<p class="fine">Version 0.2 · SideQuest Studio</p></div>' +
+        '<p class="fine">Version ' + APP_VERSION + ' · SideQuest Studio · <button class="linkbtn" data-act="privacy">Privacy policy</button></p></div>' +
       '</div></section>' +
 
       (!DEBUG ? '' : '<section class="group"><h2>Testing tools</h2><div class="card rows">' +
@@ -1004,6 +1021,19 @@
         if (ev.target.closest('[data-test]')) { closeSheet(); showBanner(C.reminderLine(now() / 60000)); }
       });
     });
+  }
+
+  // The privacy policy ships inside the app (www/privacy.html), so it works offline.
+  function openPrivacy() {
+    var src = window.HYD_PRIVACY_HTML ? '' : ' src="privacy.html"';
+    openSheet('Privacy policy', '<iframe class="policy" title="Privacy policy"' + src + '></iframe>', function (sheet) {
+      var f = $('iframe', sheet);
+      if (window.HYD_PRIVACY_HTML) f.srcdoc = window.HYD_PRIVACY_HTML; // single-file test build
+      f.addEventListener('load', function () {
+        // Links to other sites open in the browser, not inside the sheet.
+        try { Array.prototype.forEach.call(f.contentDocument.querySelectorAll('a[href^="http"]'), function (a) { a.target = '_blank'; a.rel = 'noopener'; }); } catch (e) { /* cross-origin: leave as is */ }
+      });
+    }, { cls: 'sheet--tall' });
   }
 
   /* A picture of your streak to share (free). Drawn on a canvas so it works offline. */
@@ -1534,6 +1564,7 @@
       case 'more-days': ui.histShow = (ui.histShow || 14) + 30; render(); break;
       case 'share-card': shareCard(); break;
       case 'rem-help': openReminderHelp(); break;
+      case 'privacy': openPrivacy(); break;
       case 'backup-save': {
         var payload = JSON.stringify({ app: 'hydrippo', version: 1, savedAt: now(), state: state });
         P.saveBackup(payload, 'hydrippo-backup-' + C.ymd(new Date(now())) + '.json').then(function (r) {
@@ -1633,7 +1664,11 @@
       P.hcAvailable().then(function (av) {
         if (!av || !av.available) {
           t.checked = false;
-          toast(av && av.reason === 'web' ? 'Health Connect sync works in the Android app.' : av && av.reason === 'update' ? 'Health Connect needs an update. Open Google Play to update it, then try again.' : 'Health Connect isn’t available on this phone. On Android 13 or older, install it from Google Play.');
+          var reason = av && av.reason;
+          if (reason === 'web') toast('Health Connect sync works in the Android app.');
+          else if (reason === 'update') toast('Health Connect needs an update first.', { action: { label: 'Update', run: P.hcInstall } });
+          else if (reason === 'unavailable') toast('Install Health Connect from Google Play, then try again.', { action: { label: 'Get it', run: P.hcInstall } });
+          else toast('Health Connect isn’t available on this phone.');
           return;
         }
         P.hcRequest().then(function (ok) {
@@ -1685,8 +1720,14 @@
   function mergeWidgetLogs() {
     P.takePendingLogs().then(function (logs) {
       if (!logs.length) return;
-      logs.forEach(function (l) { state.log.push({ id: newId(), ts: l.ts, ml: Math.round(l.ml), drink: 'water', src: 'widget' }); });
-      commit();
+      var added = 0;
+      logs.forEach(function (l) {
+        var ts = +l.ts, ml = +l.ml;
+        if (!(ts > 0) || !(ml > 0) || ml > 5000) return;
+        state.log.push({ id: newId(), ts: ts, ml: q(ml), drink: 'water', src: 'widget' });
+        added++;
+      });
+      if (added) { undoSnap = null; commit(); }
     });
   }
 
@@ -1704,9 +1745,8 @@
     lastKey = state.onboarded ? todayKey() : null;
     render();
     planReminders();
-    if (state.onboarded) { mergeWidgetLogs(); checkWeather(false); hcSync(); }
-    var quickMl = state.units === 'ml' ? 250 : C.ozToMl(8);
-    P.onReminderAction('Log ' + fmt(quickMl), function () { logQuick(state.units === 'ml' ? 250 : C.ozToMl(8), 'water'); });
+    if (state.onboarded) { pushWidget(); mergeWidgetLogs(); checkWeather(false); hcSync(); }
+    P.onReminderAction('Log ' + fmt(quickAddMl()), function () { logQuick(quickAddMl(), 'water'); });
     // On Android, Google Play decides whether Plus is active; the saved flag is only a cache.
     P.init().then(P.checkPlus).then(function (r) {
       if (r && r.known && r.plus !== state.plus) { state.plus = r.plus; state.plusTest = false; commit(); }
