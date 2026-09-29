@@ -10,7 +10,8 @@
   var FREE_BOTTLES = 2;
   var FREE_DAYS = 7;
   // Testing tools and test-mode Plus only show in the browser prototype or when HYD_DEBUG is set.
-  var DEBUG = !P.isNative || !!window.HYD_DEBUG;
+  // Testing tools (sample week, test Plus) show in a browser and in test builds without a store key.
+  var DEBUG = !P.isNative || P.testMode || !!window.HYD_DEBUG;
   var APP_VERSION = '0.3.0'; // keep in step with package.json (a test checks)
 
   /* ---------------- Icons (original, 24px stroke) ---------------- */

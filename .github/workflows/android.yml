@@ -100,6 +100,7 @@ jobs:
           HYDRIPPO_KEY_PASSWORD: ${{ secrets.HYDRIPPO_KEY_PASSWORD }}
         run: |
           if [ -z "$HYDRIPPO_KEYSTORE_BASE64" ]; then echo "::error::Signing secrets are not set"; exit 1; fi
+          if grep -q "goog_REPLACE_ME" ../www/js/platform.js; then echo "::error::Paste the RevenueCat Android key into www/js/platform.js before a release build"; exit 1; fi
           echo "$HYDRIPPO_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
           export HYDRIPPO_KEYSTORE="$RUNNER_TEMP/upload.jks"
           ./gradlew --no-daemon bundleRelease -PversionCode=${{ github.run_number }}

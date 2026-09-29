@@ -4,7 +4,7 @@
  * plugins when the app runs inside Capacitor. No bundler needed: native plugins are reached
  * through window.Capacitor.Plugins.
  *
- * Search for "GUS:" for the spots that need a key, a test on a real phone, or native code.
+ * Search for "TODO(launch)" for the one value that must be filled in before release.
  */
 (function (root) {
   'use strict';
@@ -13,11 +13,14 @@
   var isNative = !!(cap && cap.isNativePlatform && cap.isNativePlatform());
   var P = (cap && cap.Plugins) || {};
 
-  // GUS: paste the RevenueCat *public Android* SDK key (starts with "goog_").
+  // TODO(launch): paste the RevenueCat *public Android* SDK key (starts with "goog_").
+  // Until it's set, the app runs in test mode: Plus unlocks for free (like in a browser) so test
+  // builds can try every feature, and the release build on GitHub refuses to build.
   var REVENUECAT_ANDROID_KEY = 'goog_REPLACE_ME';
+  var testMode = !isNative || REVENUECAT_ANDROID_KEY.indexOf('REPLACE') !== -1;
   var ENTITLEMENT = 'plus';
 
-  // Product IDs to create in Play Console > Monetize. See GUS_HANDOFF.md, "Billing".
+  // Product IDs to create in Play Console > Monetize (see docs/PRODUCT_NOTES.md, "Pricing").
   var PRODUCTS = {
     yearly: { id: 'hydrippo_plus_yearly', price: '$9.99 / year', trialDays: 7 },
     lifetime: { id: 'hydrippo_plus_lifetime', price: '$14.99 once' }
@@ -50,7 +53,7 @@
 
   // kind: 'yearly' | 'lifetime'. Never unlocks Plus unless Google Play confirms.
   async function purchase(kind) {
-    if (!isNative) return { ok: true, plus: true, test: true, product: PRODUCTS[kind] };
+    if (testMode) return { ok: true, plus: true, test: true, product: PRODUCTS[kind] };
     if (!billingReady) return { ok: false, error: 'Store isn’t ready. Check your connection and try again.' };
     try {
       var offerings = await P.Purchases.getOfferings();
@@ -60,14 +63,14 @@
       var r = await P.Purchases.purchasePackage({ aPackage: pkg });
       return { ok: true, plus: hasPlus(r.customerInfo) };
     } catch (e) {
-      // GUS: confirm the cancel signal on a real device (RevenueCat sets userCancelled / code "1").
+      // RevenueCat reports a cancelled purchase as userCancelled or code "1"; both are silent.
       if (e && (e.userCancelled || e.code === '1' || e.code === 1)) return { ok: false, cancelled: true };
       return { ok: false, error: 'Purchase didn’t go through.' };
     }
   }
 
   async function restore() {
-    if (!isNative) return { ok: true, plus: false, test: true };
+    if (testMode) return { ok: true, plus: false, test: true };
     if (!billingReady) return { ok: false, error: 'Store isn’t ready.' };
     try {
       var r = await P.Purchases.restorePurchases();
@@ -173,9 +176,8 @@
   }
 
   /*
-   * Home-screen widget.
-   * GUS: native Android widget (Jetpack Glance) plus a tiny custom Capacitor plugin named
-   * "HydrippoWidget" with an update(summary) method. See GUS_HANDOFF.md, "Widget".
+   * Home-screen widget (android/.../widget/). update(summary) keeps it current; the widget
+   * keeps counting on its own after the day ends.
    */
   function updateWidget(summary) {
     if (isNative && P.HydrippoWidget && P.HydrippoWidget.update) {
@@ -193,7 +195,7 @@
 
   /*
    * Open a phone settings screen: 'notifications' (this app's notification settings) or
-   * 'battery' (battery optimization list). GUS: add the capacitor-native-settings plugin.
+   * 'battery' (battery optimization list), through capacitor-native-settings.
    * Returns true if a screen opened.
    */
   async function openSettings(kind) {
@@ -224,7 +226,7 @@
     return { ok: false };
   }
 
-  // Google Play in-app review. GUS: add @capacitor-community/in-app-review. Returns true if asked.
+  // Google Play in-app review (@capacitor-community/in-app-review). Returns true if asked.
   async function requestReview() {
     if (isNative && P.InAppReview && P.InAppReview.requestReview) {
       try { await P.InAppReview.requestReview(); return true; } catch (e) { return false; }
@@ -320,6 +322,7 @@
     requestNotificationPermission: requestNotificationPermission,
     scheduleReminders: scheduleReminders,
     onReminderAction: onReminderAction,
+    testMode: testMode,
     onBackButton: onBackButton,
     hcInstall: hcInstall,
     haptic: haptic,
